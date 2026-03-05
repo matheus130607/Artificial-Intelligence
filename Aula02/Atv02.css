@@ -1,0 +1,22 @@
+body{
+    text-align: center;
+}
+
+div{
+    width: 200px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 3px solid black;
+}
+
+.box1{
+    background-color: lightblue;
+}
+
+.box2{
+    background-color: lightgreen;
+}
+
+.box3{
+    background-color: lightcoral;
+}
