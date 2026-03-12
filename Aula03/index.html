@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatMammo - Assistente Virtual</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+<body>
+
+    <div class="dashboard-bg">
+        
+        <header class="top-header">
+            <h1>ChatMammo</h1>
+        </header>
+
+        <main class="ui-layout">
+
+            <aside class="side-column left-column">
+                <div class="glass-panel chart-panel">
+                    <p class="panel-title">Eletrocardiograma / Waves</p>
+                    <div class="fake-chart"></div>
+                </div>
+                
+                <div class="glass-panel list-panel">
+                    <p class="panel-title">Queries</p>
+                    <ul>
+                        <li><span class="icon">♥</span> Breast Cancer Queries</li>
+                        <li><span class="icon">📄</span> Resource Library</li>
+                        <li><span class="icon">⚙</span> Health Record</li>
+                    </ul>
+                </div>
+            </aside>
+
+            <section class="center-stage">
+                
+                <!-- <div class="character-wrapper">
+                    <img src="robo-sem-fundo.png" alt="Personagem" class="main-character">
+                </div> -->
+
+                <div class="glass-panel chat-overlay">
+                    <div class="chat-header">
+                        <div class="mini-avatar"></div>
+                        <span class="dots">ChatMammo - Assistente Virtual</span>
+                    </div>
+
+                    <div id="chatHistory" class="chat-history">
+                        <div class="message bot-message">
+                            Olá! Sou o ChatMammo. Estou aqui para tirar suas dúvidas sobre nódulos, tumores de mama e saúde da mulher. Como posso te ajudar hoje?
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-box">
+                        <span class="material-symbols-outlined search-icon">search</span>
+                        <input type="text" id="userInput" placeholder="Digite suas dúvidas sobre tumores de mama" autocomplete="off">
+                        <button id="sendBtn">
+                            <span class="material-symbols-outlined send-icon">send</span>
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+            <aside class="side-column right-column">
+                <div class="glass-panel info-panel">
+                    <p class="panel-title">Patient Portal</p>
+                    <div class="fake-bar"></div>
+                    <div class="fake-bar short"></div>
+                </div>
+
+                <div class="glass-panel info-panel">
+                    <p class="panel-title">Patient Records</p>
+                    <div class="fake-lines">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+
+                <div class="glass-panel info-panel">
+                    <p class="panel-title">Patient Journey</p>
+                    <div class="fake-timeline">
+                        <div class="point"></div>
+                        <div class="point"></div>
+                        <div class="point"></div>
+                    </div>
+                </div>
+            </aside>
+
+        </main>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
