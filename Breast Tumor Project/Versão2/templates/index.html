@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatMammo - Assistente Virtual</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="dashboard-bg">
+        
+        <header class="top-header">
+            <h1>ChatMammo</h1>
+        </header>
+
+        <main class="ui-layout">
+
+            <aside class="side-column left-column">
+                <div class="glass-panel chart-panel">
+                    <p class="panel-title" id="tituloGrafico">Estatísticas Dinâmicas</p>
+                    <canvas id="meuGrafico" style="display: none; width: 100%;"></canvas>
+                    <div id="chartPlaceholder" style="text-align:center; padding: 30px 0; color: rgba(255,255,255,0.5); font-size: 0.9em;">
+                        Faça uma pergunta sobre estatísticas para gerar um gráfico dinâmico.
+                    </div>
+                </div>
+                
+                <div class="glass-panel list-panel">
+                    <p class="panel-title">Queries</p>
+                    <ul>
+                        <li><span class="icon">♥</span> Breast Cancer Queries</li>
+                        <li><span class="icon">📄</span> Resource Library</li>
+                    </ul>
+                </div>
+            </aside>
+
+            <section class="center-stage">
+                <div class="glass-panel chat-overlay">
+                    <div class="chat-header">
+                        <div class="mini-avatar"></div>
+                        <span class="dots">ChatMammo - Assistente Virtual</span>
+                    </div>
+
+                    <div id="chatHistory" class="chat-history">
+                        <div class="message bot-message">
+                            Olá! Sou o ChatMammo. Estou aqui para tirar suas dúvidas sobre nódulos, tumores de mama e saúde da mulher.<br><br>
+                            Tente me perguntar: <strong>"Qual a probabilidade de ter câncer de mama?"</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-box">
+                        <span class="material-symbols-outlined search-icon">search</span>
+                        <input type="text" id="userInput" placeholder="Digite suas dúvidas..." autocomplete="off" onkeypress="handleKeyPress(event)">
+                        <button id="sendBtn" onclick="sendMessage()">
+                            <span class="material-symbols-outlined send-icon">send</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="side-column right-column">
+                <div class="glass-panel info-panel">
+                    <p class="panel-title">⚠️ Aviso Importante</p>
+                    <p style="font-size: 0.85rem; color: rgba(255,255,255,0.9); line-height: 1.4;">
+                        Este chatbot fornece apenas informações gerais e estatísticas ilustrativas baseadas em dados públicos.<br><br>
+                        <strong>NÃO substitui uma consulta médica.</strong> Consulte sempre um mastologista ou ginecologista.
+                    </p>
+                </div>
+            </aside>
+
+        </main>
+
+        <footer class="glass-panel bottom-footer">
+            
+            <div class="project-info">
+                <p><strong>ChatMammo</strong> - Projeto Integrador Acadêmico</p>
+                <p>Desenvolvido para conscientização e informação sobre a saúde da mama.</p>
+                <p style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 3px;">Dados do Groq Llama 3.3. Gráficos gerados com Chart.js.</p>
+            </div>
+
+            <div class="collaborators">
+                
+                <div class="collab-profile">
+                    <a href="https://github.com/LNJHiro" target="_blank" title="Ver GitHub do Colaborador 1">
+                        <img src="/static/imagem 1.png" alt="Foto Colaborador 1">
+                        <span>Hayron</span>
+                    </a>
+                </div>
+
+                <div class="collab-profile">
+                    <a href="https://github.com/Henrique-RMotta" target="_blank" title="Ver GitHub do Colaborador 2">
+                        <img src="/static/imagem 2.png" alt="Foto Colaborador 2">
+                        <span>Henrique Motta</span>
+                    </a>
+                </div>
+
+                <div class="collab-profile">
+                    <a href="https://github.com/matheus130607" target="_blank" title="Ver GitHub do Colaborador 3">
+                        <img src="/static/imagem 3.png" alt="Foto Colaborador 3">
+                        <span>Matheus Malaman</span>
+                    </a>
+                </div>
+
+                <div class="collab-profile">
+                    <a href="hhttps://github.com/jefferson-kkk" target="_blank" title="Ver GitHub do Colaborador 4">
+                        <img src="/static/imagem 4.png" alt="Foto Colaborador 4">
+                        <span>Jefferson Bruno</span>
+                    </a>
+                </div>
+
+            </div>
+        </footer>
+        </div> <script>
+        let graficoAtual = null;
+
+        async function sendMessage() {
+            const inputField = document.getElementById("userInput");
+            const message = inputField.value.trim();
+            if (!message) return;
+
+            appendMessage(message, "user-message");
+            inputField.value = "";
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                // Exibe o texto da resposta
+                if (data.texto) {
+                    appendMessage(data.texto, "bot-message");
+                } else if (data.error) {
+                    appendMessage("Desculpe, ocorreu um erro.", "bot-message");
+                }
+
+                // Cria ou atualiza o Gráfico se houver dados
+                if (data.grafico && data.grafico.exibir) {
+                    desenharGrafico(data.grafico);
+                }
+
+            } catch (error) {
+                appendMessage("Falha ao conectar com o servidor.", "bot-message");
+            }
+        }
+
+        function appendMessage(text, className) {
+            const chatBox = document.getElementById("chatHistory");
+            const msgElement = document.createElement("div");
+            msgElement.className = `message ${className}`;
+            msgElement.innerHTML = text.replace(/\n/g, '<br>');
+            chatBox.appendChild(msgElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+
+        function desenharGrafico(dadosDoGrafico) {
+            const ctx = document.getElementById('meuGrafico').getContext('2d');
+            document.getElementById('meuGrafico').style.display = 'block';
+            document.getElementById('chartPlaceholder').style.display = 'none';
+            document.getElementById('tituloGrafico').innerText = dadosDoGrafico.titulo;
+
+            if (graficoAtual) graficoAtual.destroy();
+
+            // Paleta de cores para combinar com o tema
+            const cores = [
+                'rgba(255, 107, 157, 0.85)', // Rosa Chat
+                'rgba(255, 255, 255, 0.85)', // Branco
+                'rgba(255, 180, 200, 0.85)', // Rosa Claro
+                'rgba(200, 50, 100, 0.85)'   // Vinho
+            ];
+
+            graficoAtual = new Chart(ctx, {
+                type: dadosDoGrafico.tipo, // 'pie' ou 'bar'
+                data: {
+                    labels: dadosDoGrafico.labels,
+                    datasets: [{
+                        label: 'Estatísticas Ilustrativas (%)',
+                        data: dadosDoGrafico.dados,
+                        backgroundColor: cores,
+                        borderColor: 'rgba(255, 255, 255, 0.6)',
+                        borderWidth: 1.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: 'white', font: { size: 12 } } }
+                    },
+                    scales: dadosDoGrafico.tipo === 'bar' ? {
+                        y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    } : {}
+                }
+            });
+        }
+    </script>
+</body>
+</html>
