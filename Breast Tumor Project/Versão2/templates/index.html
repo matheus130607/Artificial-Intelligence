@@ -4,21 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatMammo - Assistente Virtual</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 </head>
 <body>
 
     <div class="dashboard-bg">
         
-        <header class="top-header">
-            <h1>ChatMammo</h1>
-        </header>
+        <model-viewer 
+            src="{{ url_for('static', filename='Robo 3D.glb') }}" 
+            alt="Robô ChatMammo 3D"
+            auto-rotate 
+            camera-controls
+            disable-zoom
+            class="robo-3d-overlay">
+        </model-viewer>
 
         <main class="ui-layout">
 
-            <aside class="side-column left-column">
+            <aside id="sidebar" class="glass-panel side-column left-column">
+                <header class="sidebar-header">
+                    <h1>ChatMammo</h1>
+                </header>
+                
+                <button id="btn-novo-chat" onclick="criarNovoChat()">
+                    <span class="material-symbols-outlined">add</span> Nova Conversa
+                </button>
+                <div id="lista-chats"></div>
+            </aside>
+
+            <section class="center-stage">
+                <div class="glass-panel chat-overlay">
+                    <div class="chat-header">
+                        <div class="mini-avatar"></div>
+                        <span class="dots">ChatMammo - Assistente Virtual</span>
+                    </div>
+
+                    <div id="chatHistory" class="chat-history"></div>
+                    
+                    <div class="chat-input-box">
+                        <span class="material-symbols-outlined search-icon">search</span>
+                        <input type="text" id="userInput" placeholder="Digite suas dúvidas..." autocomplete="off" onkeypress="handleKeyPress(event)">
+                        <button id="sendBtn" onclick="sendMessage()">
+                            <span class="material-symbols-outlined send-icon">send</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="side-column right-column">
                 <div class="glass-panel chart-panel">
                     <p class="panel-title" id="tituloGrafico">Estatísticas Dinâmicas</p>
                     <canvas id="meuGrafico" style="display: none; width: 100%;"></canvas>
@@ -36,124 +73,270 @@
                 </div>
             </aside>
 
-            <section class="center-stage">
-                <div class="glass-panel chat-overlay">
-                    <div class="chat-header">
-                        <div class="mini-avatar"></div>
-                        <span class="dots">ChatMammo - Assistente Virtual</span>
-                    </div>
-
-                    <div id="chatHistory" class="chat-history">
-                        <div class="message bot-message">
-                            Olá! Sou o ChatMammo. Estou aqui para tirar suas dúvidas sobre nódulos, tumores de mama e saúde da mulher.<br><br>
-                            Tente me perguntar: <strong>"Qual a probabilidade de ter câncer de mama?"</strong>
-                        </div>
-                    </div>
-                    
-                    <div class="chat-input-box">
-                        <span class="material-symbols-outlined search-icon">search</span>
-                        <input type="text" id="userInput" placeholder="Digite suas dúvidas..." autocomplete="off" onkeypress="handleKeyPress(event)">
-                        <button id="sendBtn" onclick="sendMessage()">
-                            <span class="material-symbols-outlined send-icon">send</span>
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <aside class="side-column right-column">
-                <div class="glass-panel info-panel">
-                    <p class="panel-title">⚠️ Aviso Importante</p>
-                    <p style="font-size: 0.85rem; color: rgba(255,255,255,0.9); line-height: 1.4;">
-                        Este chatbot fornece apenas informações gerais e estatísticas ilustrativas baseadas em dados públicos.<br><br>
-                        <strong>NÃO substitui uma consulta médica.</strong> Consulte sempre um mastologista ou ginecologista.
-                    </p>
-                </div>
-            </aside>
-
         </main>
+    </div> 
 
-        <footer class="glass-panel bottom-footer">
-            
-            <div class="project-info">
-                <p><strong>ChatMammo</strong> - Projeto Integrador Acadêmico</p>
-                <p>Desenvolvido para conscientização e informação sobre a saúde da mama.</p>
-                <p style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 3px;">Dados do Groq Llama 3.3. Gráficos gerados com Chart.js.</p>
+    <div id="modal-delete" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3>Excluir Conversa</h3>
+            <p>Tem certeza que deseja excluir este histórico permanentemente?</p>
+            <div class="modal-buttons">
+                <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-confirmar" onclick="confirmarExclusao()">Excluir</button>
             </div>
-
-            <div class="collaborators">
-                
-                <div class="collab-profile">
-                    <a href="https://github.com/LNJHiro" target="_blank" title="Ver GitHub do Colaborador 1">
-                        <img src="/static/imagem 1.png" alt="Foto Colaborador 1">
-                        <span>Hayron</span>
-                    </a>
-                </div>
-
-                <div class="collab-profile">
-                    <a href="https://github.com/Henrique-RMotta" target="_blank" title="Ver GitHub do Colaborador 2">
-                        <img src="/static/imagem 2.png" alt="Foto Colaborador 2">
-                        <span>Henrique Motta</span>
-                    </a>
-                </div>
-
-                <div class="collab-profile">
-                    <a href="https://github.com/matheus130607" target="_blank" title="Ver GitHub do Colaborador 3">
-                        <img src="/static/imagem 3.png" alt="Foto Colaborador 3">
-                        <span>Matheus Malaman</span>
-                    </a>
-                </div>
-
-                <div class="collab-profile">
-                    <a href="hhttps://github.com/jefferson-kkk" target="_blank" title="Ver GitHub do Colaborador 4">
-                        <img src="/static/imagem 4.png" alt="Foto Colaborador 4">
-                        <span>Jefferson Bruno</span>
-                    </a>
-                </div>
-
-            </div>
-        </footer>
-        </div> <script>
+        </div>
+    </div>
+    
+    <script>
         let graficoAtual = null;
+        let audioAtual = null;      
+        let botaoAudioAtivo = null; 
+        let chatAtualId = null; 
+
+        // Variável para guardar qual chat o usuário quer excluir
+        let chatIdParaExcluir = null;
+
+        // --- INICIALIZAÇÃO DA PÁGINA ---
+        window.onload = async () => {
+            await carregarListaDeChats();
+        };
+
+        // ==========================================
+        // GERENCIAMENTO DE CONVERSAS (BACKEND)
+        // ==========================================
+        async function carregarListaDeChats() {
+            const response = await fetch('/api/chats');
+            const chats = await response.json();
+            const listaDiv = document.getElementById('lista-chats');
+            listaDiv.innerHTML = '';
+
+            if (chats.length === 0) {
+                await criarNovoChat();
+                return;
+            }
+
+            chats.forEach(chat => {
+                const item = document.createElement('div');
+                item.className = `chat-item ${chat.id === chatAtualId ? 'ativo' : ''}`;
+                
+                const spanTitulo = document.createElement('span');
+                spanTitulo.innerText = chat.titulo;
+                spanTitulo.style.flex = "1";
+                spanTitulo.onclick = () => carregarConversa(chat.id);
+
+                const btnExcluir = document.createElement('button');
+                btnExcluir.className = 'btn-excluir';
+                btnExcluir.innerHTML = '<span class="material-symbols-outlined">delete</span>';
+                btnExcluir.onclick = (e) => {
+                    e.stopPropagation(); 
+                    excluirChat(chat.id); // Agora apenas abre o modal
+                };
+
+                item.appendChild(spanTitulo);
+                item.appendChild(btnExcluir);
+                listaDiv.appendChild(item);
+            });
+
+            if (!chatAtualId && chats.length > 0) {
+                carregarConversa(chats[chats.length - 1].id);
+            }
+        }
+
+        async function criarNovoChat() {
+            const response = await fetch('/api/chat/novo', { method: 'POST' });
+            const data = await response.json();
+            await carregarListaDeChats();
+            carregarConversa(data.id);
+        }
+
+        async function carregarConversa(id) {
+            chatAtualId = id;
+            document.getElementById('chatHistory').innerHTML = ''; 
+            
+            document.getElementById('meuGrafico').style.display = 'none';
+            document.getElementById('chartPlaceholder').style.display = 'block';
+            document.getElementById('tituloGrafico').innerText = 'Estatísticas Dinâmicas';
+            if (graficoAtual) graficoAtual.destroy();
+
+            await carregarListaDeChats(); 
+
+            const response = await fetch(`/api/chat/${id}`);
+            const data = await response.json();
+
+            if (data.mensagens.length === 0) {
+                appendMessage("Olá! Sou o ChatMammo. Estou aqui para tirar suas dúvidas sobre nódulos, tumores de mama e saúde da mulher.<br><br>Tente me perguntar: <strong>\"Qual a probabilidade de ter câncer de mama?\"</strong>", "bot-message", false);
+            } else {
+                data.mensagens.forEach(msg => {
+                    if (msg.role === 'user') {
+                        appendMessage(msg.content, "user-message", false);
+                    } else if (msg.role === 'assistant') {
+                        try {
+                            const jsonObj = JSON.parse(msg.content);
+                            appendMessage(jsonObj.texto, "bot-message", false);
+                            if (jsonObj.grafico && jsonObj.grafico.exibir) {
+                                desenharGrafico(jsonObj.grafico);
+                            }
+                        } catch (e) {
+                            appendMessage(msg.content, "bot-message", false);
+                        }
+                    }
+                });
+            }
+        }
+
+        // ==========================================
+        // LÓGICA DO MODAL DE EXCLUSÃO
+        // ==========================================
+        function excluirChat(id) {
+            chatIdParaExcluir = id; // Salva o ID do chat
+            document.getElementById('modal-delete').style.display = 'flex'; // Mostra o modal
+        }
+
+        function fecharModal() {
+            chatIdParaExcluir = null;
+            document.getElementById('modal-delete').style.display = 'none'; // Esconde o modal
+        }
+
+        async function confirmarExclusao() {
+            if (!chatIdParaExcluir) return;
+            const id = chatIdParaExcluir;
+            
+            fecharModal(); // Esconde o modal antes mesmo de terminar de excluir
+
+            await fetch(`/api/chat/${id}`, { method: 'DELETE' });
+            
+            if (chatAtualId === id) {
+                chatAtualId = null;
+                document.getElementById('chatHistory').innerHTML = '';
+                document.getElementById('meuGrafico').style.display = 'none';
+                document.getElementById('chartPlaceholder').style.display = 'block';
+                document.getElementById('tituloGrafico').innerText = 'Estatísticas Dinâmicas';
+            }
+            await carregarListaDeChats();
+        }
+
+        // ==========================================
+        // LÓGICA DE ÁUDIO E CHAT
+        // ==========================================
+        async function falarTexto(texto, btnElement) {
+            const clicouNoMesmo = (botaoAudioAtivo === btnElement);
+
+            if (audioAtual) {
+                audioAtual.pause();
+                audioAtual.currentTime = 0;
+            }
+
+            if (botaoAudioAtivo) {
+                botaoAudioAtivo.innerHTML = '<span class="material-symbols-outlined">volume_up</span> Ouvir';
+                botaoAudioAtivo = null;
+            }
+
+            if (clicouNoMesmo) {
+                return;
+            }
+
+            botaoAudioAtivo = btnElement;
+            botaoAudioAtivo.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> Carregando...';
+
+            try {
+                const response = await fetch('/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ texto: texto })
+                });
+
+                if (!response.ok) throw new Error("Erro ao gerar áudio");
+
+                const blob = await response.blob();
+                const audioUrl = URL.createObjectURL(blob);
+
+                audioAtual = new Audio(audioUrl);
+                
+                if (botaoAudioAtivo !== btnElement) {
+                    return; 
+                }
+
+                botaoAudioAtivo.innerHTML = '<span class="material-symbols-outlined">stop_circle</span> Parar';
+                audioAtual.play();
+
+                audioAtual.onended = () => {
+                    if (botaoAudioAtivo === btnElement) {
+                        botaoAudioAtivo.innerHTML = '<span class="material-symbols-outlined">volume_up</span> Ouvir';
+                        botaoAudioAtivo = null;
+                    }
+                };
+
+            } catch (error) {
+                console.error(error);
+                if (botaoAudioAtivo === btnElement) {
+                    botaoAudioAtivo.innerHTML = '<span class="material-symbols-outlined">error</span> Erro';
+                    setTimeout(() => {
+                        if (botaoAudioAtivo === btnElement) {
+                            botaoAudioAtivo.innerHTML = '<span class="material-symbols-outlined">volume_up</span> Ouvir';
+                            botaoAudioAtivo = null;
+                        }
+                    }, 2000);
+                }
+            }
+        }
 
         async function sendMessage() {
             const inputField = document.getElementById("userInput");
             const message = inputField.value.trim();
-            if (!message) return;
+            if (!message || !chatAtualId) return;
 
-            appendMessage(message, "user-message");
+            appendMessage(message, "user-message", false);
             inputField.value = "";
 
             try {
                 const response = await fetch("/chat", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify({ message: message, chat_id: chatAtualId })
                 });
                 
                 const data = await response.json();
                 
-                // Exibe o texto da resposta
                 if (data.texto) {
-                    appendMessage(data.texto, "bot-message");
+                    appendMessage(data.texto, "bot-message", true); 
                 } else if (data.error) {
-                    appendMessage("Desculpe, ocorreu um erro.", "bot-message");
+                    appendMessage("Desculpe, ocorreu um erro.", "bot-message", false);
                 }
 
-                // Cria ou atualiza o Gráfico se houver dados
                 if (data.grafico && data.grafico.exibir) {
                     desenharGrafico(data.grafico);
                 }
 
+                if (data.titulo) {
+                    carregarListaDeChats();
+                }
+
             } catch (error) {
-                appendMessage("Falha ao conectar com o servidor.", "bot-message");
+                appendMessage("Falha ao conectar com o servidor.", "bot-message", false);
             }
         }
 
-        function appendMessage(text, className) {
+        function appendMessage(text, className, adicionarBotaoVoz = true) {
             const chatBox = document.getElementById("chatHistory");
             const msgElement = document.createElement("div");
             msgElement.className = `message ${className}`;
+            
             msgElement.innerHTML = text.replace(/\n/g, '<br>');
+
+            if (className === "bot-message" && adicionarBotaoVoz) {
+                const btnAudio = document.createElement("button");
+                btnAudio.className = "btn-falar";
+                btnAudio.innerHTML = '<span class="material-symbols-outlined">volume_up</span> Ouvir';
+                btnAudio.title = "Ouvir/Parar resposta em voz alta";
+                
+                const textoLimpo = msgElement.innerText; 
+                
+                btnAudio.onclick = () => falarTexto(textoLimpo, btnAudio);
+                
+                msgElement.appendChild(document.createElement("br"));
+                msgElement.appendChild(btnAudio);
+            }
+
             chatBox.appendChild(msgElement);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
@@ -172,20 +355,19 @@
 
             if (graficoAtual) graficoAtual.destroy();
 
-            // Paleta de cores para combinar com o tema
             const cores = [
-                'rgba(255, 107, 157, 0.85)', // Rosa Chat
-                'rgba(255, 255, 255, 0.85)', // Branco
-                'rgba(255, 180, 200, 0.85)', // Rosa Claro
-                'rgba(200, 50, 100, 0.85)'   // Vinho
+                'rgba(255, 107, 157, 0.85)', 
+                'rgba(255, 255, 255, 0.85)', 
+                'rgba(255, 180, 200, 0.85)', 
+                'rgba(200, 50, 100, 0.85)'   
             ];
 
             graficoAtual = new Chart(ctx, {
-                type: dadosDoGrafico.tipo, // 'pie' ou 'bar'
+                type: dadosDoGrafico.tipo,
                 data: {
                     labels: dadosDoGrafico.labels,
                     datasets: [{
-                        label: 'Estatísticas Ilustrativas (%)',
+                        label: 'Estatísticas',
                         data: dadosDoGrafico.dados,
                         backgroundColor: cores,
                         borderColor: 'rgba(255, 255, 255, 0.6)',
@@ -195,8 +377,13 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: { padding: { top: 10, bottom: 10, left: 10, right: 10 } },
                     plugins: {
-                        legend: { labels: { color: 'white', font: { size: 12 } } }
+                        legend: { 
+                            position: 'bottom',
+                            labels: { color: 'white', font: { size: 11 }, boxWidth: 12, padding: 10 } 
+                        },
+                        tooltip: { bodyFont: { size: 11 }, titleFont: { size: 12 } }
                     },
                     scales: dadosDoGrafico.tipo === 'bar' ? {
                         y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },

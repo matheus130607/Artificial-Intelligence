@@ -1,4 +1,41 @@
+# ==========================================
+# VARIÁVEIS DE AMBIENTE (Suas regras originais)
+# ==========================================
 .env
 .env.local
 .env.development
 .env.test
+
+# ==========================================
+# DADOS GERADOS PELO SISTEMA E USUÁRIOS (Histórico de Chats)
+# ==========================================
+# Ignora a pasta onde você vai salvar os históricos (.txt e .json)
+dados_chats/
+historico_usuarios/
+
+# Caso você acabe salvando arquivos soltos na raiz por acidente:
+*history*.json
+*chat*.txt
+
+# ==========================================
+# AMBIENTE VIRTUAL PYTHON
+# ==========================================
+venv/
+.venv/
+env/
+
+# ==========================================
+# CACHE DO PYTHON E ARQUIVOS TEMPORÁRIOS
+# ==========================================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ==========================================
+# ARQUIVOS DE SISTEMA OPERACIONAL E IDEs
+# ==========================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
