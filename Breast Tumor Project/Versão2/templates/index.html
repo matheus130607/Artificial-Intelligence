@@ -15,11 +15,15 @@
     <div class="dashboard-bg">
         
         <model-viewer 
+            id="robo-mammo"
             src="{{ url_for('static', filename='Robo 3D.glb') }}" 
             alt="Robô ChatMammo 3D"
-            auto-rotate 
             camera-controls
+            camera-orbit="0deg 80deg 100%" 
+            camera-target="0m 0m 0m"
             disable-zoom
+            disable-pan
+            shadow-intensity="1"
             class="robo-3d-overlay">
         </model-viewer>
 
@@ -28,6 +32,7 @@
             <aside id="sidebar" class="glass-panel side-column left-column">
                 <header class="sidebar-header">
                     <h1>ChatMammo</h1>
+                    <button id="btn-theme-toggle" class="btn-theme">☀️ Tema Claro</button>
                 </header>
                 
                 <button id="btn-novo-chat" onclick="criarNovoChat()">
@@ -92,9 +97,29 @@
         let audioAtual = null;      
         let botaoAudioAtivo = null; 
         let chatAtualId = null; 
-
-        // Variável para guardar qual chat o usuário quer excluir
         let chatIdParaExcluir = null;
+
+        // ==========================================
+        // FUNÇÕES DA CÂMERA DO ROBÔ 3D
+        // ==========================================
+        function getRobo() {
+            return document.getElementById('robo-mammo');
+        }
+
+        function roboOuvindo() {
+            const robo = getRobo();
+            if (robo) robo.setAttribute('camera-orbit', '30deg 75deg 85%');
+        }
+
+        function roboRespondendo() {
+            const robo = getRobo();
+            if (robo) robo.setAttribute('camera-orbit', '-20deg 80deg 95%');
+        }
+
+        function roboDescansando() {
+            const robo = getRobo();
+            if (robo) robo.setAttribute('camera-orbit', '0deg 80deg 100%');
+        }
 
         // --- INICIALIZAÇÃO DA PÁGINA ---
         window.onload = async () => {
@@ -129,7 +154,7 @@
                 btnExcluir.innerHTML = '<span class="material-symbols-outlined">delete</span>';
                 btnExcluir.onclick = (e) => {
                     e.stopPropagation(); 
-                    excluirChat(chat.id); // Agora apenas abre o modal
+                    excluirChat(chat.id); 
                 };
 
                 item.appendChild(spanTitulo);
@@ -188,20 +213,20 @@
         // LÓGICA DO MODAL DE EXCLUSÃO
         // ==========================================
         function excluirChat(id) {
-            chatIdParaExcluir = id; // Salva o ID do chat
-            document.getElementById('modal-delete').style.display = 'flex'; // Mostra o modal
+            chatIdParaExcluir = id; 
+            document.getElementById('modal-delete').style.display = 'flex'; 
         }
 
         function fecharModal() {
             chatIdParaExcluir = null;
-            document.getElementById('modal-delete').style.display = 'none'; // Esconde o modal
+            document.getElementById('modal-delete').style.display = 'none'; 
         }
 
         async function confirmarExclusao() {
             if (!chatIdParaExcluir) return;
             const id = chatIdParaExcluir;
             
-            fecharModal(); // Esconde o modal antes mesmo de terminar de excluir
+            fecharModal(); 
 
             await fetch(`/api/chat/${id}`, { method: 'DELETE' });
             
@@ -288,7 +313,13 @@
             appendMessage(message, "user-message", false);
             inputField.value = "";
 
+            // O usuário enviou, o robô presta atenção (anula o giro manual do usuário)
+            roboOuvindo();
+
             try {
+                // Enquanto espera o servidor, ele muda a pose
+                roboRespondendo();
+
                 const response = await fetch("/chat", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -313,6 +344,11 @@
 
             } catch (error) {
                 appendMessage("Falha ao conectar com o servidor.", "bot-message", false);
+            } finally {
+                // Tudo terminou, ele volta pra posição inicial
+                setTimeout(() => {
+                    roboDescansando();
+                }, 2000);
             }
         }
 
@@ -392,6 +428,31 @@
                 }
             });
         }
+
+        // ==========================================
+        // LÓGICA DE ALTERNAR TEMA (DARK/LIGHT)
+        // ==========================================
+        const btnTheme = document.getElementById('btn-theme-toggle');
+        const body = document.body;
+
+        // Verifica preferência salva
+        if (localStorage.getItem('theme') === 'light') {
+            body.classList.add('light-mode');
+            btnTheme.innerHTML = '🌙 Tema Escuro';
+        }
+
+        btnTheme.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                localStorage.setItem('theme', 'light');
+                btnTheme.innerHTML = '🌙 Tema Escuro';
+            } else {
+                localStorage.setItem('theme', 'dark');
+                btnTheme.innerHTML = '☀️ Tema Claro';
+            }
+        });
+
     </script>
 </body>
 </html>

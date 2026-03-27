@@ -29,7 +29,7 @@ body, html {
     display: flex;
     flex-direction: column; 
     overflow: hidden;
-    position: relative; /* Adicionado para servir de âncora pro robô absoluto */
+    position: relative;
 }
 
 /* ========================================== */
@@ -41,14 +41,9 @@ body, html {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 1; /* Fica na FRENTE do fundo (imagem 5), mas ATRÁS dos painéis (z-index: 2) */
-    
-    /* Configurações visuais do modelo 3D */
+    z-index: 1; /* Fica na FRENTE do fundo, mas ATRÁS dos painéis */
     exposure: 1.2; 
     shadow-intensity: 1;
-    
-    /* Se o robô estiver atrapalhando os cliques na tela, descomente a linha abaixo */
-    /* pointer-events: none; */ 
 }
 
 /* ========================================== */
@@ -63,6 +58,12 @@ body, html {
     padding: 0; 
     position: relative;
     z-index: 2; /* Fica na frente do robô */
+    pointer-events: none; /* Deixa o fundo (robô) clicável através dos espaços vazios */
+}
+
+/* Apenas as colunas laterais bloqueiam o clique 100% */
+.side-column {
+    pointer-events: auto;
 }
 
 /* ========================================== */
@@ -74,7 +75,6 @@ body, html {
     height: 100vh; 
     flex-shrink: 0; 
     padding: 20px;
-    /* Forçando o efeito de vidro translúcido */
     background: rgba(255, 255, 255, 0.15) !important; 
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
@@ -117,11 +117,14 @@ body, html {
 }
 
 /* ========================================== */
-/* MENU ESQUERDO (HISTÓRICO)                  */
+/* MENU ESQUERDO (HISTÓRICO E TEMA)           */
 /* ========================================== */
 .sidebar-header {
     text-align: center;
     margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .sidebar-header h1 {
@@ -129,6 +132,7 @@ body, html {
     color: white;
     font-weight: 500;
     font-size: 1.4rem; 
+    margin-bottom: 15px;
 }
 
 #btn-novo-chat {
@@ -145,6 +149,7 @@ body, html {
     gap: 8px;
     justify-content: center;
     transition: all 0.2s;
+    width: 100%;
 }
 
 #btn-novo-chat:hover { background-color: #e91e63; }
@@ -188,6 +193,7 @@ body, html {
     height: 100vh;
     position: relative;
     overflow: hidden;
+    pointer-events: none; /* ISSO FAZ O CLIQUE ATRAVESSAR PARA O ROBÔ */
 }
 
 .chat-overlay {
@@ -197,6 +203,11 @@ body, html {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    pointer-events: none; /* Impede que o fundo do chat bloqueie o robô */
+}
+
+.chat-header, .chat-history, .chat-input-box {
+    pointer-events: auto; /* Reativa os cliques onde importa (mensagens, cabeçalho e input) */
 }
 
 .chat-header {
@@ -230,6 +241,11 @@ body, html {
     display: flex;
     flex-direction: column;
     gap: 12px; 
+    
+    /* Limita a largura para liberar o fundo para o mouse */
+    width: 100%;
+    max-width: 800px; 
+    margin: 0 auto; 
 }
 
 .chat-history::-webkit-scrollbar { width: 6px; }
@@ -250,7 +266,7 @@ body, html {
     color: #222;
     align-self: flex-start;
     border-bottom-left-radius: 4px;
-    margin-left: max(0px, calc(50% - 400px));
+    margin-left: 0; /* Ajustado por conta do max-width */
 }
 
 .user-message {
@@ -258,7 +274,7 @@ body, html {
     color: white;
     align-self: flex-end;
     border-bottom-right-radius: 4px;
-    margin-right: max(0px, calc(50% - 400px));
+    margin-right: 0; /* Ajustado por conta do max-width */
 }
 
 @keyframes fadeIn {
@@ -347,6 +363,7 @@ body, html {
     z-index: 9999;
     opacity: 0;
     animation: fadeInModal 0.3s forwards;
+    pointer-events: auto; /* O modal deve sempre ser clicável */
 }
 
 .modal-content {
@@ -413,10 +430,160 @@ body, html {
 /* ========================================== */
 @media screen and (max-width: 1024px) {
     .right-column { display: none; }
-    .bot-message { margin-left: 0; }
-    .user-message { margin-right: 0; }
 }
 @media screen and (max-width: 768px) {
     .left-column { display: none; } 
     .chat-input-box { width: calc(100% - 30px); }
+}
+
+/* ========================================== */
+/* BOTÃO DE TEMA E MODO CLARO                 */
+/* ========================================== */
+
+/* Estilo do botão de tema (padrão escuro) */
+.btn-theme {
+    background-color: transparent;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 15px;
+    width: 100%;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+.btn-theme:hover { background-color: rgba(255, 255, 255, 0.2); }
+
+/* Quando o body tiver a classe 'light-mode', o botão fica escuro */
+body.light-mode .btn-theme {
+    color: #333;
+    border-color: rgba(0, 0, 0, 0.3);
+}
+body.light-mode .btn-theme:hover { background-color: rgba(0, 0, 0, 0.1); }
+
+/* ========================================== */
+/* REGRAS DO MODO CLARO                       */
+/* ========================================== */
+
+/* Deixa os painéis laterais mais brancos e opacos */
+body.light-mode .side-column {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Muda os textos para cinza escuro/preto */
+body.light-mode .sidebar-header h1,
+body.light-mode .panel-title,
+body.light-mode .chat-item,
+body.light-mode .dots,
+body.light-mode .list-panel li {
+    color: #333 !important;
+}
+
+/* Painéis de gráficos mais claros */
+body.light-mode .glass-panel {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #333;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajusta o hover do histórico de chat */
+body.light-mode .chat-item:hover, 
+body.light-mode .chat-item.ativo {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Botão de excluir (lixeirinha) */
+body.light-mode .btn-excluir { color: #888; }
+body.light-mode .btn-excluir:hover { color: #ff2a2a; }
+
+/* Mensagem do robô no modo claro */
+body.light-mode .bot-message {
+    background: #ffffff;
+    color: #222;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* Caixa de digitar mensagem no modo claro */
+body.light-mode .chat-input-box {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+}
+body.light-mode .chat-input-box input {
+    color: #333;
+}
+body.light-mode .chat-input-box .search-icon,
+body.light-mode .chat-input-box .send-icon {
+    color: #555;
+}
+
+/* ==========================================
+   TEMA CLARO (LIGHT MODE)
+   ========================================== */
+
+/* Muda a cor do fundo geral da página para um tom mais claro */
+body.light-mode {
+    color: #333;
+}
+
+/* Painéis de Vidro no tema claro (Translúcidos para ver o robô) */
+body.light-mode .glass-panel {
+    background: rgba(255, 255, 255, 0.4) !important; /* Fundo branco quase transparente */
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+/* Textos e Títulos para o tema claro */
+body.light-mode .sidebar-header h1,
+body.light-mode .panel-title,
+body.light-mode .chat-header .dots,
+body.light-mode #chartPlaceholder {
+    color: #222 !important;
+}
+
+/* Caixa de digitar mensagem no tema claro */
+body.light-mode .chat-input-box {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #ddd;
+}
+
+body.light-mode .chat-input-box input {
+    color: #333;
+}
+
+body.light-mode .chat-input-box input::placeholder {
+    color: #777;
+}
+
+body.light-mode .search-icon {
+    color: #555;
+}
+
+/* Mensagem do Robô no tema claro */
+body.light-mode .bot-message {
+    background: rgba(255, 255, 255, 0.9);
+    color: #222;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Itens da lista de conversas no tema claro */
+body.light-mode .chat-item {
+    color: #444;
+}
+
+body.light-mode .chat-item:hover,
+body.light-mode .chat-item.ativo {
+    background: rgba(255, 107, 157, 0.15); /* Um rosa bem clarinho ao selecionar */
+    color: #000;
+}
+
+/* Botão de nova conversa */
+body.light-mode #btn-novo-chat {
+    box-shadow: 0 4px 10px rgba(255, 107, 157, 0.3);
 }
